@@ -1,0 +1,51 @@
+name: Build Nintendo 3DS homebrew
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: devkitpro/devkitarm:latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Build
+        shell: bash
+        run: |
+          set -euo pipefail
+          export DEVKITPRO=/opt/devkitpro
+          export DEVKITARM="$DEVKITPRO/devkitARM"
+          export PATH="$DEVKITARM/bin:$DEVKITPRO/tools/bin:$PATH"
+          make -j"$(nproc)"
+
+      - name: Collect build artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+
+          find . -maxdepth 3 -type f \
+            \( -name '3dsblox.3dsx' -o -name '3dsblox.cia' \
+               -o -name '3dsblox.elf' -o -name '3dsblox.smdh' \) \
+            -exec cp -v {} dist/ \;
+
+          if [ ! -f dist/3dsblox.3dsx ]; then
+            echo "Expected 3dsblox.3dsx was not produced."
+            exit 1
+          fi
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: 3dsblox-build
+          path: dist/
+          if-no-files-found: error
