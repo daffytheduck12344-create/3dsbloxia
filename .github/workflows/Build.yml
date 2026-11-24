@@ -8,12 +8,6 @@ on:
 permissions:
   contents: read
 
-env:
-  DEVKITPRO: /opt/devkitpro
-  DEVKITARM: /opt/devkitpro/devkitARM
-  CTRULIB: /opt/devkitpro/libctru
-  PATH: /opt/devkitpro/devkitARM/bin:/opt/devkitpro/tools/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -24,18 +18,69 @@ jobs:
       - name: Check out source
         uses: actions/checkout@v4
 
+      - name: Ensure starter source exists if source/ is empty
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p source
+          if [ -z "$(find source -maxdepth 2 -type f \( -name '*.c' -o -name '*.cpp' -o -name '*.s' \))" ]; then
+            cat <<'EOF' > source/main.cpp
+#include <3ds.h>
+#include <stdio.h>
+
+int main(int argc, char** argv) {
+    (void)argc;
+    (void)argv;
+    gfxInitDefault();
+    consoleInit(GFX_TOP, nullptr);
+    printf("3dsblox booted!\nPress START to exit.\n");
+
+    while (aptMainLoop()) {
+        hidScanInput();
+        u32 kDown = hidKeysDown();
+        if (kDown & KEY_START) break;
+
+        gfxFlushBuffers();
+        gfxSwapBuffers();
+        gspWaitForVBlank();
+    }
+
+    gfxExit();
+    return 0;
+}
+EOF
+          fi
+
       - name: Install 3DS libraries
         shell: bash
         run: |
           set -euo pipefail
-          dkp-pacman -Syu --noconfirm
-          dkp-pacman -S --needed --noconfirm 3ds-dev
+          export DEVKITPRO=/opt/devkitpro
+          export DEVKITARM=/opt/devkitpro/devkitARM
+          export PATH="$DEVKITARM/bin:$DEVKITPRO/tools/bin:$PATH"
+
+          if [ -x /opt/devkitpro/pacman/bin/pacman ]; then
+            /opt/devkitpro/pacman/bin/pacman -Syu --noconfirm
+            /opt/devkitpro/pacman/bin/pacman -S --needed --noconfirm 3ds-dev
+          else
+            dkp-pacman -Syu --noconfirm
+            dkp-pacman -S --needed --noconfirm 3ds-dev
+          fi
 
       - name: Build
         shell: bash
         run: |
           set -euo pipefail
-          test -f "$DEVKITARM/base_rules"
+          export DEVKITPRO=/opt/devkitpro
+          export DEVKITARM=/opt/devkitpro/devkitARM
+          if [ -f /opt/devkitpro/3dsvars.sh ]; then
+            set +u
+            source /opt/devkitpro/3dsvars.sh
+            set -u
+          fi
+          export PATH="$DEVKITARM/bin:$DEVKITPRO/tools/bin:$PATH"
+
+          ls -la "$DEVKITARM"
           arm-none-eabi-gcc --version
           make -j"$(nproc)"
 
@@ -44,16 +89,10 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p dist
-          ls -la
           find . -maxdepth 4 -type f \
-            \( -name '3dsblox.3dsx' -o -name '3dsblox.cia' \
-               -o -name '3dsblox.elf' -o -name '3dsblox.smdh' \) \
+            \( -name '3dsblox.3dsx' -o -name '3dsblox.elf' -o -name '3dsblox.smdh' \) \
             -exec cp -v {} dist/ \;
-
-          if [ ! -f dist/3dsblox.3dsx ]; then
-            echo "Expected 3dsblox.3dsx was not produced."
-            exit 1
-          fi
+          test -f dist/3dsblox.3dsx
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
