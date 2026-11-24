@@ -1,4 +1,4 @@
-name: Build 3dsblox
+name: Build 3dsbloxia
 
 on:
   push:
@@ -17,71 +17,85 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     container:
       image: devkitpro/devkitarm:latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout 3dsbloxia
         uses: actions/checkout@v4
 
-      - name: Bootstrap starter main.cpp if source is empty
+      - name: Create source fallback
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p source
-          if [ -z "$(find source -maxdepth 2 -type f \( -name '*.c' -o -name '*.cpp' -o -name '*.s' \))" ]; then
-            printf '%s\n' \
-              '#include <3ds.h>' \
-              '#include <stdio.h>' \
-              '' \
-              'int main(int argc, char** argv) {' \
-              '  (void)argc;' \
-              '  (void)argv;' \
-              '  gfxInitDefault();' \
-              '  consoleInit(GFX_TOP, NULL);' \
-              '  printf("3dsblox ready\nPress START to exit\n");' \
-              '  while (aptMainLoop()) {' \
-              '    hidScanInput();' \
-              '    if (hidKeysDown() & KEY_START) break;' \
-              '    gfxFlushBuffers();' \
-              '    gfxSwapBuffers();' \
-              '    gspWaitForVBlank();' \
-              '  }' \
-              '  gfxExit();' \
-              '  return 0;' \
-              '}' > source/main.cpp
+          if ! find source -maxdepth 2 -type f \
+            \( -name '*.c' -o -name '*.cpp' -o -name '*.s' \) \
+            -print -quit | grep -q .; then
+            cat > source/main.cpp <<'EOF'
+          #include <3ds.h>
+          #include <stdio.h>
+
+          int main(void) {
+            gfxInitDefault();
+            consoleInit(GFX_TOP, NULL);
+
+            printf("3dsbloxia ready\nPress START to exit\n");
+
+            while (aptMainLoop()) {
+              hidScanInput();
+              if (hidKeysDown() & KEY_START) break;
+
+              gfxFlushBuffers();
+              gfxSwapBuffers();
+              gspWaitForVBlank();
+            }
+
+            gfxExit();
+            return 0;
+          }
+          EOF
           fi
 
-      - name: Install 3DS devkit packages
+      - name: Verify 3dsbloxia toolchain
         shell: bash
         run: |
           set -euo pipefail
-          dkp-pacman -Syu --noconfirm
-          dkp-pacman -S --needed --noconfirm 3ds-dev
-
-      - name: Compile homebrew binary
-        shell: bash
-        run: |
-          set -euo pipefail
+          test -x "${DEVKITARM}/bin/arm-none-eabi-gcc"
+          test -d "${DEVKITPRO}/libctru/include"
           arm-none-eabi-gcc --version
+          make --version | head -n 1
+
+      - name: Clean and compile 3dsbloxia
+        shell: bash
+        run: |
+          set -euo pipefail
+          make clean
           make -j"$(nproc)"
 
-      - name: Stage artifacts
+      - name: Verify 3dsbloxia outputs
         shell: bash
         run: |
           set -euo pipefail
+          test -f 3dsblox.3dsx
+          ls -lh 3dsblox.3dsx
+          if [ -f 3dsblox.elf ]; then ls -lh 3dsblox.elf; fi
+          if [ -f 3dsblox.smdh ]; then ls -lh 3dsblox.smdh; fi
+
+      - name: Stage 3dsbloxia artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf dist
           mkdir -p dist
           cp -v 3dsblox.3dsx dist/
-          if [ -f 3dsblox.smdh ]; then
-            cp -v 3dsblox.smdh dist/
-          fi
-          if [ -f 3dsblox.elf ]; then
-            cp -v 3dsblox.elf dist/
-          fi
+          if [ -f 3dsblox.smdh ]; then cp -v 3dsblox.smdh dist/; fi
+          if [ -f 3dsblox.elf ]; then cp -v 3dsblox.elf dist/; fi
 
-      - name: Upload build artifacts
+      - name: Upload 3dsbloxia artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: 3dsblox-3ds
+          name: 3dsbloxia-3ds
           path: dist/
           if-no-files-found: error
