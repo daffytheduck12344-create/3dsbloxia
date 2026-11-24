@@ -18,14 +18,14 @@ typedef struct { int crop; int growth; } Plot;
 typedef struct { const char *name; Plot plot; int seeds; int coins; int seedType; } GardenBot;
 
 static const char *const botNames[] = {
-    "NightPulse", "NeonVanguard", "FrostByte", "ZeroDrift", "CobaltNova", "VectorShade", "PulseRift", "CyberMoth", "VoltStride", "PrismFlux", "HyperKite", "StaticVex", "AstroNomad", "IonViper", "DriftCircuit", "SolisEdge", "QuantumRove", "GlitchWarden", "ArcSignal", "NyxHorizon", "TurboCipher", "ChromeJolt", "AeroSpark", "ZenithPulse", "FluxHarbor",
-    "StudForge", "BrickSentinel", "BloxDrift", "ClassicCrusader", "RetroValkyrie", "SpawnPointZero", "StudlyVanguard", "WeldBreaker", "BaseplateKing", "SwordFencer", "TixCollector", "RocketHopper", "ObbyRunner", "CrateSmasher", "CrownSeeker", "StuddedFox", "BlockworkGuild", "ClassicNomad", "GearMastery", "PlanksAndStuds", "VintageBloxxer", "BrickyardAce", "RetroHarbor", "StudsOnly", "OldSchoolRift",
-    "SoftMochi", "PeachCove", "VelvetMoth", "HoneyDewdrop", "CloudberryVale", "FernWhisper", "DuskLinen", "MoonlitTulle", "ApricotMist", "OatMilkAura", "WillowBreeze", "MossyLantern", "SugarPlumDrift", "DewyPetal", "LavenderFable", "CoralThistle", "CalmClementine", "StarlightWren", "CozyClover", "MilkTeaCloud", "MapleHaze", "PastelFerry", "BirchHollow", "HoneyedFern", "QuietSolstice",
-    "LagWizard", "WaffleGoblin", "YeetTornado", "PotatoGrenade", "BonkCaptain", "SirDropsFrames", "SpicyNoodleLord", "HonkGremlin", "AccidentalHero", "ToastOnFire", "MarshmallowThief", "PingAt999", "GoofySpatula", "LawnMowerPro", "SockStealer", "PigeonGeneral", "BroccoliBrawler", "CheeseMeteor", "ChaosTaco", "BamboozleDuck", "SnaccBandit", "BananaRiot", "Discombobulated", "HamsterOverlord", "NaptimeNinja",
-    "QuickFlick", "SharpStrafe", "ClutchVortex", "ApexReaper", "RapidKite", "SwiftRift", "CrispAim", "PhantomSprint", "BlitzCobra", "LethalDash", "KeenReflex", "GrimVanguard", "StrikerZero", "RazorPace", "VenomSurge", "TalonStrike", "RogueTempo", "HavocDrift", "ScopeHunter", "IronCinder", "NightstalkerX", "FiercePuma", "GhostStrider", "SavagePixel", "RushFury",
-    "AshValkyrie", "ObsidianCrow", "HollowEclipse", "NocturneFang", "ThornSpecter", "CinderWraith", "DreadLantern", "RuinDrifter", "SableVesper", "UmbraWolf", "GloomHarbor", "BleakOracle", "CrypticRaven", "DuskRevenant", "ShadeMonarch", "MourningStarlight", "PhantomVesper", "BitterAsh", "OnyxLament", "ShadowedRook", "VoidSentinel", "NightshadeKite", "GrimSolace", "AshenCrown", "ColdEmber",
-    "EmberPaladin", "StarforgedKnight", "WyvernTamer", "RuneKeeper", "SilverValkyrie", "DragonvaleBard", "SunstoneRanger", "FrostfangDruid", "MythicOsprey", "DawnbreakerFox", "AstralAlchemist", "StormholdArcher", "BriarwoodScout", "CobaltSorcerer", "SkywardMinstrel", "GildedGriffin", "HollowvaleMage", "IronbarkCleric", "SunfireLancer", "MooncrestVoyager", "CinderKnight", "ValeSeeker", "Runeweaver", "SpireWanderer", "WildwoodMonk",
-    "Kairo", "Vexis", "Zorya", "Ryker", "LyraX", "Jettix", "Solen", "Nyxie", "Tavon", "Zephy", "Orin", "Kaida", "Bexley", "Corvo", "Halen", "Moxie", "Sorenz", "Talia", "Vespera", "Wrenly", "Zarek", "Arlo", "CleoV", "Dexon", "Fynn",
+    "NightPulse", "NeonVanguard", "FrostByte", "ZeroDrift", "CobaltNova", "VectorShade", "PulseRift", "CyberMoth", "VoltStride", "PrismFlux", "HyperKite", "StaticVex", "AstroNomad", "IonViper", "DriftWarden",
+    "StudForge", "BrickSentinel", "BloxDrift", "ClassicCrusader", "RetroValkyrie", "SpawnPointZero", "StudlyVanguard", "WeldBreaker", "BaseplateKing", "SwordFencer", "TixCollector", "RocketHopper",
+    "SoftMochi", "PeachCove", "VelvetMoth", "HoneyDewdrop", "CloudberryVale", "FernWhisper", "DuskLinen", "MoonlitTulle", "ApricotMist", "OatMilkAura", "WillowBreeze", "MossyLantern", "SugarPlumDrifter",
+    "LagWizard", "WaffleGoblin", "YeetTornado", "PotatoGrenade", "BonkCaptain", "SirDropsFrames", "SpicyNoodleLord", "HonkGremlin", "AccidentalHero", "ToastOnFire", "MarshmallowThief", "PingAt999",
+    "QuickFlick", "SharpStrafe", "ClutchVortex", "ApexReaper", "RapidKite", "SwiftRift", "CrispAim", "PhantomSprint", "BlitzCobra", "LethalDash", "KeenReflex", "GrimVanguard", "StrikerZero", "RazorGhost",
+    "AshValkyrie", "ObsidianCrow", "HollowEclipse", "NocturneFang", "ThornSpecter", "CinderWraith", "DreadLantern", "RuinDrifter", "SableVesper", "UmbraWolf", "GloomHarbor", "BleakOracle", "CrypticBlaze",
+    "EmberPaladin", "StarforgedKnight", "WyvernTamer", "RuneKeeper", "SilverValkyrie", "DragonvaleBard", "SunstoneRanger", "FrostfangDruid", "MythicOsprey", "DawnbreakerFox", "AstralAlchemist", "SolarMystic",
+    "Kairo", "Vexis", "Zorya", "Ryker", "LyraX", "Jettix", "Solen", "Nyxie", "Tavon", "Zephy", "Orin", "Kaida", "Bexley", "Corvo", "Halen", "Moxie", "Sorenz", "Talia", "Vespera", "Wrenly", "Zarek",
     "toe_tickler67", "john/doe"
 };
 #define BOT_NAME_COUNT ((int)(sizeof(botNames) / sizeof(botNames[0])))
@@ -55,7 +55,6 @@ static void doorsBuildFloor(void) {
             room[y][x] = (x == 0 || y == 0 || x == MAP_W - 1 || y == MAP_H - 1) ? '#' : '.';
         room[y][MAP_W] = '\0';
     }
-    /* Procedural room dividers with openings keep each floor navigable. */
     for (x = 2; x < MAP_W - 2; ++x) {
         if (x != 4 + (floorNumber * 3) % 14) room[4][x] = '#';
         if (x != 3 + (floorNumber * 5) % 15) room[8][x] = '#';
@@ -67,7 +66,6 @@ static void doorsBuildFloor(void) {
     room[8][3 + (floorNumber * 5) % 15] = '.';
     room[2 + floorNumber % 3][12] = '.';
     room[8 + floorNumber % 3][12] = '.';
-    /* A few deterministic obstacles vary the room without blocking its passages. */
     for (x = 0; x < 3; ++x) {
         int ox = 3 + (floorNumber * 7 + x * 5) % 17;
         int oy = 2 + (floorNumber * 3 + x * 4) % 9;
@@ -120,7 +118,6 @@ static void doorsAction(void) {
         return;
     }
     if (player.x == exitDoor.x && player.y == exitDoor.y && !hasKey) return;
-    /* If the key is adjacent, collect it with A as well as by walking over it. */
     if (!hasKey && absInt(player.x - keyPos.x) + absInt(player.y - keyPos.y) <= 1) hasKey = true;
 }
 
@@ -293,7 +290,7 @@ int main(void) {
         hidScanInput();
         u32 down = hidKeysDown();
         u32 held = hidKeysHeld();
-        CirclePosition circle;
+        circlePosition circle;
         hidCircleRead(&circle);
         if (down & KEY_START) break;
         if (mode == MODE_TITLE) {
