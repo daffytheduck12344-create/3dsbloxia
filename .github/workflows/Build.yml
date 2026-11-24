@@ -18,6 +18,19 @@ jobs:
       - name: Check out source
         uses: actions/checkout@v4
 
+      - name: Verify 3DS toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          export DEVKITPRO=/opt/devkitpro
+          export DEVKITARM="$DEVKITPRO/devkitARM"
+          export PATH="$DEVKITARM/bin:$DEVKITPRO/tools/bin:$PATH"
+
+          test -f "$DEVKITPRO/libctru/base_rules"
+          test -f "$DEVKITARM/bin/arm-none-eabi-gcc"
+          arm-none-eabi-gcc --version
+          make --version
+
       - name: Build
         shell: bash
         run: |
@@ -32,16 +45,12 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p dist
-
           find . -maxdepth 3 -type f \
             \( -name '3dsblox.3dsx' -o -name '3dsblox.cia' \
                -o -name '3dsblox.elf' -o -name '3dsblox.smdh' \) \
             -exec cp -v {} dist/ \;
 
-          if [ ! -f dist/3dsblox.3dsx ]; then
-            echo "Expected 3dsblox.3dsx was not produced."
-            exit 1
-          fi
+          test -f dist/3dsblox.3dsx
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
