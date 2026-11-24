@@ -34,7 +34,13 @@ jobs:
           export DEVKITPRO=/opt/devkitpro
           export DEVKITARM="$DEVKITPRO/devkitARM"
           export PATH="$DEVKITARM/bin:$DEVKITPRO/tools/bin:$PATH"
-          test -f "$DEVKITPRO/libctru/base_rules"
+
+          if [ ! -f "$DEVKITARM/base_rules" ]; then
+            echo "Missing devkitARM base_rules:"
+            find "$DEVKITPRO" -name base_rules -type f -print
+            exit 1
+          fi
+
           make -j"$(nproc)"
 
       - name: Collect build artifacts
@@ -42,11 +48,16 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p dist
+
           find . -maxdepth 3 -type f \
             \( -name '3dsblox.3dsx' -o -name '3dsblox.cia' \
                -o -name '3dsblox.elf' -o -name '3dsblox.smdh' \) \
             -exec cp -v {} dist/ \;
-          test -f dist/3dsblox.3dsx
+
+          if [ ! -f dist/3dsblox.3dsx ]; then
+            echo "Expected 3dsblox.3dsx was not produced."
+            exit 1
+          fi
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
