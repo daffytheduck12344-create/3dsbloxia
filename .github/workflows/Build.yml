@@ -36,8 +36,34 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test -x "${DEVKITARM}/bin/arm-none-eabi-gcc"
-          test -d "${DEVKITPRO}/libctru/include"
+
+          echo "DEVKITPRO=${DEVKITPRO}"
+          echo "DEVKITARM=${DEVKITARM}"
+          echo "CTRULIB=${CTRULIB}"
+          echo "PATH=${PATH}"
+
+          if [[ ! -x "${DEVKITARM}/bin/arm-none-eabi-gcc" ]]; then
+            echo "ERROR: ARM compiler not found or not executable:"
+            echo "${DEVKITARM}/bin/arm-none-eabi-gcc"
+            ls -la "${DEVKITARM}/bin" || true
+            command -v arm-none-eabi-gcc || true
+            exit 1
+          fi
+
+          if [[ ! -f "${DEVKITARM}/3ds_rules" ]]; then
+            echo "ERROR: devkitARM build rules not found:"
+            echo "${DEVKITARM}/3ds_rules"
+            ls -la "${DEVKITARM}" || true
+            exit 1
+          fi
+
+          if [[ ! -d "${CTRULIB}/include" ]]; then
+            echo "ERROR: libctru headers not found:"
+            echo "${CTRULIB}/include"
+            ls -la "${DEVKITPRO}" || true
+            exit 1
+          fi
+
           arm-none-eabi-gcc -dumpmachine
           arm-none-eabi-gcc -dumpversion
           make --no-print-directory --version >/dev/null
