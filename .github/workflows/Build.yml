@@ -64,8 +64,9 @@ jobs:
           set -euo pipefail
           test -x "${DEVKITARM}/bin/arm-none-eabi-gcc"
           test -d "${DEVKITPRO}/libctru/include"
-          arm-none-eabi-gcc --version
-          make --version | head -n 1
+          printf 'DEVKITARM compiler: %s\n' "${DEVKITARM}/bin/arm-none-eabi-gcc"
+          arm-none-eabi-gcc -dumpmachine
+          arm-none-eabi-gcc -dumpversion
 
       - name: Clean and compile 3dsbloxia
         shell: bash
