@@ -8,6 +8,12 @@ on:
 permissions:
   contents: read
 
+env:
+  DEVKITPRO: /opt/devkitpro
+  DEVKITARM: /opt/devkitpro/devkitARM
+  CTRULIB: /opt/devkitpro/libctru
+  PATH: /opt/devkitpro/devkitARM/bin:/opt/devkitpro/tools/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -22,25 +28,15 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          export DEVKITPRO=/opt/devkitpro
-          export DEVKITARM="$DEVKITPRO/devkitARM"
-          dkp-pacman -Sy --noconfirm
+          dkp-pacman -Syu --noconfirm
           dkp-pacman -S --needed --noconfirm 3ds-dev
 
       - name: Build
         shell: bash
         run: |
           set -euo pipefail
-          export DEVKITPRO=/opt/devkitpro
-          export DEVKITARM="$DEVKITPRO/devkitARM"
-          export PATH="$DEVKITARM/bin:$DEVKITPRO/tools/bin:$PATH"
-
-          if [ ! -f "$DEVKITARM/base_rules" ]; then
-            echo "Missing devkitARM base_rules:"
-            find "$DEVKITPRO" -name base_rules -type f -print
-            exit 1
-          fi
-
+          test -f "$DEVKITARM/base_rules"
+          arm-none-eabi-gcc --version
           make -j"$(nproc)"
 
       - name: Collect build artifacts
@@ -48,8 +44,8 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p dist
-
-          find . -maxdepth 3 -type f \
+          ls -la
+          find . -maxdepth 4 -type f \
             \( -name '3dsblox.3dsx' -o -name '3dsblox.cia' \
                -o -name '3dsblox.elf' -o -name '3dsblox.smdh' \) \
             -exec cp -v {} dist/ \;
