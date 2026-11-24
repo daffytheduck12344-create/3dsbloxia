@@ -1,22 +1,29 @@
-# 3DSBlox
+# 3DSBlox: Mystery Night
 
-A dependency-free, browser-playable prototype inspired by the Roblox 3DS blueprint. It provides a small block world, a controllable block-built character, two-screen-style controls, a basic build mode, and an experimental importer for simple `.rbxlx` XML parts.
+A native Nintendo 3DS homebrew prototype built with devkitPro/libctru. It is an original, single-player social-deduction game prototype—not a Roblox client and not an official Murder Mystery 2 remake. It uses original ASCII visuals and no Roblox/MM2 assets.
 
-## Run it
+## Build on a devkitPro machine
 
-Open `index.html` in a modern browser. No build step or external libraries are required. On a phone or tablet, use the lower touch workspace and controls.
+Install devkitPro with the Nintendo 3DS development tools (`3ds-dev`) and make sure `DEVKITPRO` is set. From this repository root, run:
 
-## Controls
+```sh
+make
+```
 
-- **Move:** WASD or arrow keys; lower-screen ◀ / ▶ controls also move.
-- **Jump:** Space (or tap JUMP).
-- **Camera:** drag the game view or lower workspace.
-- **Build:** tap STUDIO, choose a color slot, then tap the lower workspace to place a block.
-- **Reset:** use the Reset world button.
-- **Import:** use Import `.rbxlx` place for a best-effort import of basic `Part`, `WedgePart`, and `SpawnLocation` XML entries.
+This produces `3dsblox.3dsx` and, where supported by the installed toolchain, `3dsblox.cia`. Copy the `.3dsx` to your 3DS SD card's `3ds/3dsblox/` directory and launch it with Homebrew Launcher. A real 3DS or emulator is required to play; this repository does not include a PC game build.
 
-## Current scope and limitations
+## Prototype gameplay
 
-This is an early browser prototype, not a Roblox client, emulator, or native Nintendo 3DS homebrew build. It does not connect to Roblox services or run Roblox scripts. Native binary `.rbxl` parsing, complete `.rbxlx` property/CFrame mapping, real 3D rendering/stereoscopy, the 3DS hardware APIs and system keyboard, full R6 animation/physics, networking, and production memory/performance limits remain future work. The displayed 3D toggle is a visual prototype indicator, not actual stereoscopic rendering.
+- The top screen shows a small, tile-based mystery arena.
+- The bottom screen shows the player's role, controls, evidence, and round state.
+- Circle Pad / D-pad move. A interacts: survivors collect evidence, the detective fires, and the culprit tags at close range. B returns to the title screen.
+- Find all evidence and reach the exit as a survivor; stop the culprit as the detective; tag all the other characters as the culprit.
+- The current NPC behavior and maps are deliberately small prototype placeholders.
 
-The initial implementation deliberately prioritizes a runnable game loop and build/play interaction before attempting format compatibility or device-specific rendering. See the supplied project blueprint in the repository conversation as the target specification.
+## Online play
+
+There is no online multiplayer in this build. Online play requires a server/protocol, identity and room management, authoritative game state, and a secure transport; the 3DS homebrew runtime does not make that appear automatically. See [`docs/ONLINE.md`](docs/ONLINE.md) for a safe, staged plan. Do not enter Nintendo Network credentials or real passwords into prototype software.
+
+## Scope
+
+This is an original homebrew game starter, not a Roblox engine. It does not load `.rbxl`/`.rbxlx`, run Roblox Lua, connect to Roblox, or implement the earlier 3D rendering/Studio blueprint. Native stereoscopic 3D, sound, richer maps, and online sessions remain future work. The old browser mockup in `index.html` is not the target build; the native source is under `source/`.
