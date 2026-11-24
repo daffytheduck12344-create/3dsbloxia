@@ -1,4 +1,4 @@
-name: Build Nintendo 3DS homebrew
+name: Build 3dsblox
 
 on:
   push:
@@ -8,6 +8,12 @@ on:
 permissions:
   contents: read
 
+env:
+  DEVKITPRO: /opt/devkitpro
+  DEVKITARM: /opt/devkitpro/devkitARM
+  CTRULIB: /opt/devkitpro/libctru
+  PATH: /opt/devkitpro/devkitARM/bin:/opt/devkitpro/tools/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -15,10 +21,10 @@ jobs:
       image: devkitpro/devkitarm:latest
 
     steps:
-      - name: Check out source
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Ensure starter source exists if source/ is empty
+      - name: Bootstrap starter main.cpp if source is empty
         shell: bash
         run: |
           set -euo pipefail
@@ -29,52 +35,53 @@ jobs:
               '#include <stdio.h>' \
               '' \
               'int main(int argc, char** argv) {' \
-              '    (void)argc;' \
-              '    (void)argv;' \
-              '    gfxInitDefault();' \
-              '    consoleInit(GFX_TOP, NULL);' \
-              '    printf("3dsblox booted!\nPress START to exit.\n");' \
-              '    while (aptMainLoop()) {' \
-              '        hidScanInput();' \
-              '        if (hidKeysDown() & KEY_START) break;' \
-              '        gfxFlushBuffers();' \
-              '        gfxSwapBuffers();' \
-              '        gspWaitForVBlank();' \
-              '    }' \
-              '    gfxExit();' \
-              '    return 0;' \
+              '  (void)argc;' \
+              '  (void)argv;' \
+              '  gfxInitDefault();' \
+              '  consoleInit(GFX_TOP, NULL);' \
+              '  printf("3dsblox ready\nPress START to exit\n");' \
+              '  while (aptMainLoop()) {' \
+              '    hidScanInput();' \
+              '    if (hidKeysDown() & KEY_START) break;' \
+              '    gfxFlushBuffers();' \
+              '    gfxSwapBuffers();' \
+              '    gspWaitForVBlank();' \
+              '  }' \
+              '  gfxExit();' \
+              '  return 0;' \
               '}' > source/main.cpp
           fi
 
-      - name: Install 3DS libraries
+      - name: Install 3DS devkit packages
         shell: bash
         run: |
           set -euo pipefail
           dkp-pacman -Syu --noconfirm
           dkp-pacman -S --needed --noconfirm 3ds-dev
 
-      - name: Build
+      - name: Compile homebrew binary
         shell: bash
         run: |
           set -euo pipefail
-          export DEVKITPRO=/opt/devkitpro
-          export DEVKITARM=/opt/devkitpro/devkitARM
-          export CTRULIB=/opt/devkitpro/libctru
-          export PATH="$DEVKITARM/bin:$DEVKITPRO/tools/bin:$PATH"
+          arm-none-eabi-gcc --version
           make -j"$(nproc)"
 
-      - name: Collect build artifacts
+      - name: Stage artifacts
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p dist
           cp -v 3dsblox.3dsx dist/
-          [ -f 3dsblox.smdh ] && cp -v 3dsblox.smdh dist/ || true
-          [ -f 3dsblox.elf ] && cp -v 3dsblox.elf dist/ || true
+          if [ -f 3dsblox.smdh ]; then
+            cp -v 3dsblox.smdh dist/
+          fi
+          if [ -f 3dsblox.elf ]; then
+            cp -v 3dsblox.elf dist/
+          fi
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: 3dsblox-build
+          name: 3dsblox-3ds
           path: dist/
           if-no-files-found: error
