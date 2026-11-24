@@ -23,4 +23,4 @@ LIBS        := -lctru
 #---------------------------------------------------------------------------------
 # no changes below this line should be needed
 #---------------------------------------------------------------------------------
-include $(DEVKITPRO)/libctru/base_rules
+include $(DEVKITARM)/base_rules
