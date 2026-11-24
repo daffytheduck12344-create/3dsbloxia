@@ -25,38 +25,12 @@ jobs:
       - name: Checkout 3dsbloxia
         uses: actions/checkout@v4
 
-      - name: Create source fallback
+      - name: Remove duplicate fallback source
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p source
-          if ! find source -maxdepth 2 -type f \
-            \( -name '*.c' -o -name '*.cpp' -o -name '*.s' \) \
-            -print -quit | grep -q .; then
-            cat > source/main.cpp <<'EOF'
-          #include <3ds.h>
-          #include <stdio.h>
-
-          int main(void) {
-            gfxInitDefault();
-            consoleInit(GFX_TOP, NULL);
-
-            printf("3dsbloxia ready\nPress START to exit\n");
-
-            while (aptMainLoop()) {
-              hidScanInput();
-              if (hidKeysDown() & KEY_START) break;
-
-              gfxFlushBuffers();
-              gfxSwapBuffers();
-              gspWaitForVBlank();
-            }
-
-            gfxExit();
-            return 0;
-          }
-          EOF
-          fi
+          rm -f source/main.cpp
+          test -f source/main.c
 
       - name: Verify 3dsbloxia toolchain
         shell: bash
@@ -64,9 +38,9 @@ jobs:
           set -euo pipefail
           test -x "${DEVKITARM}/bin/arm-none-eabi-gcc"
           test -d "${DEVKITPRO}/libctru/include"
-          printf 'DEVKITARM compiler: %s\n' "${DEVKITARM}/bin/arm-none-eabi-gcc"
           arm-none-eabi-gcc -dumpmachine
           arm-none-eabi-gcc -dumpversion
+          make --no-print-directory --version >/dev/null
 
       - name: Clean and compile 3dsbloxia
         shell: bash
