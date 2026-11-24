@@ -18,18 +18,14 @@ jobs:
       - name: Check out source
         uses: actions/checkout@v4
 
-      - name: Verify 3DS toolchain
+      - name: Install 3DS libraries
         shell: bash
         run: |
           set -euo pipefail
           export DEVKITPRO=/opt/devkitpro
           export DEVKITARM="$DEVKITPRO/devkitARM"
-          export PATH="$DEVKITARM/bin:$DEVKITPRO/tools/bin:$PATH"
-
-          test -f "$DEVKITPRO/libctru/base_rules"
-          test -f "$DEVKITARM/bin/arm-none-eabi-gcc"
-          arm-none-eabi-gcc --version
-          make --version
+          dkp-pacman -Sy --noconfirm
+          dkp-pacman -S --needed --noconfirm 3ds-dev
 
       - name: Build
         shell: bash
@@ -38,6 +34,7 @@ jobs:
           export DEVKITPRO=/opt/devkitpro
           export DEVKITARM="$DEVKITPRO/devkitARM"
           export PATH="$DEVKITARM/bin:$DEVKITPRO/tools/bin:$PATH"
+          test -f "$DEVKITPRO/libctru/base_rules"
           make -j"$(nproc)"
 
       - name: Collect build artifacts
@@ -49,7 +46,6 @@ jobs:
             \( -name '3dsblox.3dsx' -o -name '3dsblox.cia' \
                -o -name '3dsblox.elf' -o -name '3dsblox.smdh' \) \
             -exec cp -v {} dist/ \;
-
           test -f dist/3dsblox.3dsx
 
       - name: Upload build artifacts
